@@ -303,6 +303,24 @@ class DieScene: SKScene {
                 modifierNodes.remove(at: idx)
             }
         }
+
+        for (i, (_, node)) in diceNodes.enumerated() {
+            if (-self.frame.height / 2) > (node.position.y + node.frame.height/2) {
+                if node == selected { continue }
+                node.removeFromParent()
+                dice.wrappedValue.remove(at: i)
+                diceNodes.remove(at: i)
+            }
+        }
+
+        for (i, (_, node)) in modifierNodes.enumerated() {
+            if (-self.frame.height / 2) > (node.position.y + node.frame.height/2) {
+                if node == selected { continue }
+                node.removeFromParent()
+                modifiers.wrappedValue.remove(at: i)
+                modifierNodes.remove(at: i)
+            }
+        }
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
