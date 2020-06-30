@@ -264,8 +264,9 @@ struct ContentView: View {
                         }
                         self.modifiers = dice.modifier == 0 ? [] : [dice.modifier]
                         self.writingDieString = false
+                        self.dieString = ""
                     }) {
-                        Text("Add!")
+                        Text("Save!")
                     }.disabled((try? Dice(self.dieString)) == nil)
                 }.padding()
                 Spacer()
