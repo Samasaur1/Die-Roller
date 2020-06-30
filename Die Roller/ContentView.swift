@@ -87,82 +87,10 @@ struct ContentView: View {
                             Spacer()
                         }
                         if self.addingCustomDie {
-                            ZStack {
-                                Color.primary.colorInvert().onTapGesture {
-                                    UIApplication.shared.endEditing()
-                                }
-                                VStack {
-                                    HStack {
-                                        Button(action: {
-                                            self.addingCustomDie = false
-                                        }) {
-                                            Text("Cancel").foregroundColor(.red)
-                                        }
-                                        Spacer()
-                                        Button(action: {
-                                            self.add(self.customDieSides!)
-                                            self.addingCustomDie = false
-                                            self.customDieSidesStr = ""
-                                        }) {
-                                            Text("Add!")
-                                        }.disabled(self.customDieSides ?? 0 <= 0)
-                                    }.padding()
-                                    Spacer()
-                                    TextField("Number of Sides", text: self.$customDieSidesStr).keyboardType(.numberPad)
-                                        .padding()
-                                    Stepper(onIncrement: {
-                                        if self.customDieSides != nil {
-                                            self.customDieSidesStr = "\(self.customDieSides! + 1)"
-                                        }
-                                    }, onDecrement: {
-                                        if self.customDieSides != nil {
-                                            self.customDieSidesStr = "\(self.customDieSides! - 1)"
-                                        }
-                                    }) {
-                                        Text("Stepper")
-                                    }.padding()
-                                    Spacer()
-                                }
-                            }
+                            self.addingCustomDieView
                         }
                         if self.addingModifier {
-                            ZStack {
-                                Color.primary.colorInvert().onTapGesture {
-                                    UIApplication.shared.endEditing()
-                                }
-                                VStack {
-                                    HStack {
-                                        Button(action: {
-                                            self.addingModifier = false
-                                        }) {
-                                            Text("Cancel").foregroundColor(.red)
-                                        }
-                                        Spacer()
-                                        Button(action: {
-                                            self.modifiers.append(self.modifier!)
-                                            self.addingModifier = false
-                                            self.modifierStr = ""
-                                        }) {
-                                            Text("Add!")
-                                        }.disabled(self.modifier == nil)
-                                    }.padding()
-                                    Spacer()
-                                    TextField("Modifier", text: self.$modifierStr).keyboardType(.numbersAndPunctuation)
-                                        .padding()
-                                    Stepper(onIncrement: {
-                                        if self.modifier != nil {
-                                            self.modifierStr = "\(self.modifier! + 1)"
-                                        }
-                                    }, onDecrement: {
-                                        if self.modifier != nil {
-                                            self.modifierStr = "\(self.modifier! - 1)"
-                                        }
-                                    }) {
-                                        Text("Stepper")
-                                    }.padding()
-                                    Spacer()
-                                }
-                            }
+                            self.addingModifierView
                         }
                     }
                 }
@@ -184,29 +112,111 @@ struct ContentView: View {
                 }
             }.padding()
                 .popover(isPresented: $presentingRoll) {
-                    VStack {
-                        HStack {
-                            Button(action: {
-                                self.presentingRoll = false
-                            }) {
-                                Text("Close").foregroundColor(.red)
-                            }
-                            Spacer()
-                            Button(action: {
-                                self.roll()
-                            }) {
-                                Text("Reroll!")
-                            }
-                        }.padding()
-                        Spacer()
-                        Text("Roll result was \(self.rollResult)")
-                        Spacer()
-                        HStack {
-                            Text("Dice Rolled: ").bold()
-                            Text(Dice(dice: self.dice, withModifier: self.modifiers.reduce(0, +)).debugDescription)
-                        }.padding()
-                    }
+                    self.rollPresentationView
             }
+        }
+    }
+
+    private var addingCustomDieView: some View {
+        ZStack {
+            Color.primary.colorInvert().onTapGesture {
+                UIApplication.shared.endEditing()
+            }
+            VStack {
+                HStack {
+                    Button(action: {
+                        self.addingCustomDie = false
+                    }) {
+                        Text("Cancel").foregroundColor(.red)
+                    }
+                    Spacer()
+                    Button(action: {
+                        self.add(self.customDieSides!)
+                        self.addingCustomDie = false
+                        self.customDieSidesStr = ""
+                    }) {
+                        Text("Add!")
+                    }.disabled(self.customDieSides ?? 0 <= 0)
+                }.padding()
+                Spacer()
+                TextField("Number of Sides", text: self.$customDieSidesStr).keyboardType(.numberPad)
+                    .padding()
+                Stepper(onIncrement: {
+                    if self.customDieSides != nil {
+                        self.customDieSidesStr = "\(self.customDieSides! + 1)"
+                    }
+                }, onDecrement: {
+                    if self.customDieSides != nil {
+                        self.customDieSidesStr = "\(self.customDieSides! - 1)"
+                    }
+                }) {
+                    Text("Stepper")
+                }.padding()
+                Spacer()
+            }
+        }
+    }
+    private var addingModifierView: some View {
+        ZStack {
+            Color.primary.colorInvert().onTapGesture {
+                UIApplication.shared.endEditing()
+            }
+            VStack {
+                HStack {
+                    Button(action: {
+                        self.addingModifier = false
+                    }) {
+                        Text("Cancel").foregroundColor(.red)
+                    }
+                    Spacer()
+                    Button(action: {
+                        self.modifiers.append(self.modifier!)
+                        self.addingModifier = false
+                        self.modifierStr = ""
+                    }) {
+                        Text("Add!")
+                    }.disabled(self.modifier == nil)
+                }.padding()
+                Spacer()
+                TextField("Modifier", text: self.$modifierStr).keyboardType(.numbersAndPunctuation)
+                    .padding()
+                Stepper(onIncrement: {
+                    if self.modifier != nil {
+                        self.modifierStr = "\(self.modifier! + 1)"
+                    }
+                }, onDecrement: {
+                    if self.modifier != nil {
+                        self.modifierStr = "\(self.modifier! - 1)"
+                    }
+                }) {
+                    Text("Stepper")
+                }.padding()
+                Spacer()
+            }
+        }
+    }
+    private var rollPresentationView: some View {
+        VStack {
+            HStack {
+                Button(action: {
+                    self.presentingRoll = false
+                }) {
+                    Text("Close").foregroundColor(.red)
+                }
+                Spacer()
+                Button(action: {
+                    self.roll()
+                }) {
+                    Text("Reroll!")
+                }
+            }.padding()
+            Spacer()
+            Text("Roll result was \(self.rollResult)")
+            Spacer()
+            HStack {
+                Text("Dice Rolled: ").bold()
+                Text(Dice(dice: self.dice, withModifier: self.modifiers.reduce(0, +)).debugDescription)
+            }.padding()
         }
     }
 
@@ -278,7 +288,7 @@ class DieScene: SKScene {
             add(die: dice.wrappedValue.last!)
         } else if dice.wrappedValue.count < diceNodes.count {
             if dice.wrappedValue.isEmpty {
-                diceNodes.forEach { (die, node) in
+                diceNodes.forEach { (_, node) in
                     node.removeFromParent()
                     node.removeAllChildren()
                 }
@@ -295,7 +305,7 @@ class DieScene: SKScene {
             add(modifier: modifiers.wrappedValue.last!)
         } else if modifiers.wrappedValue.count < modifierNodes.count {
             if modifiers.wrappedValue.isEmpty {
-                modifierNodes.forEach { (mod, node) in
+                modifierNodes.forEach { (_, node) in
                     node.removeFromParent()
                     node.removeAllChildren()
                 }
