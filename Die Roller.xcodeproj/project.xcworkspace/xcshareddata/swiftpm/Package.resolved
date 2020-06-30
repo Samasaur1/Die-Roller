@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "DiceKit",
+        "repositoryURL": "git@github.com:Samasaur1/DiceKit.git",
+        "state": {
+          "branch": null,
+          "revision": "73dc6b894038cc59f7b4e8ac3c87527922be5854",
+          "version": "0.20.0"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

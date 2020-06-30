@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -13,6 +13,7 @@
 		221DFB9E24AA83A200E1AA80 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 221DFB9D24AA83A200E1AA80 /* Assets.xcassets */; };
 		221DFBA124AA83A200E1AA80 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 221DFBA024AA83A200E1AA80 /* Preview Assets.xcassets */; };
 		221DFBA424AA83A200E1AA80 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 221DFBA224AA83A200E1AA80 /* LaunchScreen.storyboard */; };
+		221DFBAD24AA8F4C00E1AA80 /* DiceKit in Frameworks */ = {isa = PBXBuildFile; productRef = 221DFBAC24AA8F4C00E1AA80 /* DiceKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -31,6 +32,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				221DFBAD24AA8F4C00E1AA80 /* DiceKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,6 +93,9 @@
 			dependencies = (
 			);
 			name = "Die Roller";
+			packageProductDependencies = (
+				221DFBAC24AA8F4C00E1AA80 /* DiceKit */,
+			);
 			productName = "Die Roller";
 			productReference = 221DFB9424AA83A100E1AA80 /* Die Roller.app */;
 			productType = "com.apple.product-type.application";
@@ -119,6 +124,9 @@
 				Base,
 			);
 			mainGroup = 221DFB8B24AA83A100E1AA80;
+			packageReferences = (
+				221DFBAB24AA8F4C00E1AA80 /* XCRemoteSwiftPackageReference "DiceKit" */,
+			);
 			productRefGroup = 221DFB9524AA83A100E1AA80 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -342,6 +350,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		221DFBAB24AA8F4C00E1AA80 /* XCRemoteSwiftPackageReference "DiceKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "git@github.com:Samasaur1/DiceKit.git";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 0.20.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		221DFBAC24AA8F4C00E1AA80 /* DiceKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 221DFBAB24AA8F4C00E1AA80 /* XCRemoteSwiftPackageReference "DiceKit" */;
+			productName = DiceKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 221DFB8C24AA83A100E1AA80 /* Project object */;
 }
