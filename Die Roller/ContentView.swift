@@ -275,6 +275,8 @@ struct ContentView: View {
                     Text(self.diceStringError.error!).foregroundColor(.red).animation(.default)
                 }
                 Spacer()
+                Spacer()
+                Spacer()
             }
         }
 
