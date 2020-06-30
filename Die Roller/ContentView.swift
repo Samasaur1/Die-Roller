@@ -218,12 +218,20 @@ struct ContentView: View {
         }
     }
     private var rollPresentationView: some View {
-        VStack {
+        VStack(spacing: 0) {
             HStack {
                 Button(action: {
                     self.presentingRoll = false
                 }) {
                     Text("Close").foregroundColor(.red)
+                }
+                Spacer()
+                Text("Result: ").bold()
+                Text("\(self.rollResult)")
+                Spacer()
+                HStack {
+                    Text("Dice Rolled: ").bold()
+                    Text(Dice(dice: self.dice, withModifier: self.modifiers.reduce(0, +)).debugDescription)
                 }
                 Spacer()
                 Button(action: {
@@ -232,13 +240,17 @@ struct ContentView: View {
                     Text("Reroll!")
                 }
             }.padding()
-            Spacer()
-            Text("Roll result was \(self.rollResult)")
-            Spacer()
-            HStack {
-                Text("Dice Rolled: ").bold()
-                Text(Dice(dice: self.dice, withModifier: self.modifiers.reduce(0, +)).debugDescription)
-            }.padding()
+            Divider()
+            TabView {
+                GraphView(dice: Dice(dice: self.dice, withModifier: self.modifiers.reduce(0, +))).tabItem {
+                    Image(systemName: "chart.bar")
+                    Text("Probabilities")
+                }.tag(1)
+                Text("").tabItem {
+                    Image(systemName: "slider.horizontal.3")
+                    Text("Chances")
+                }.tag(2)
+            }
         }
     }
     private var writingDieStringView: some View {
