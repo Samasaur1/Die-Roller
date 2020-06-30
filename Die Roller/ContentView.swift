@@ -201,6 +201,10 @@ struct ContentView: View {
                         Spacer()
                         Text("Roll result was \(self.rollResult)")
                         Spacer()
+                        HStack {
+                            Text("Dice Rolled: ").bold()
+                            Text(Dice(dice: self.dice, withModifier: self.modifiers.reduce(0, +)).debugDescription)
+                        }.padding()
                     }
             }
         }
