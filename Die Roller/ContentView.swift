@@ -26,6 +26,8 @@ struct ContentView: View {
     var modifier: Int? {
         Int(modifierStr)
     }
+    @State var writingDieString = false
+    @State var dieString = ""
     var body: some View {
         VStack(spacing: 0) {
             GeometryReader { (geo: GeometryProxy) in
@@ -97,12 +99,24 @@ struct ContentView: View {
             }
             Divider()
             HStack {
-                Text(Dice(dice: dice, withModifier: modifiers.reduce(0, +)).debugDescription)
+                Button(action: {
+                    self.writingDieString = true
+                    self.addingCustomDie = false
+                    self.addingModifier = false
+                    self.presentingRoll = false
+                }) {
+                    Text(Dice(dice: dice, withModifier: modifiers.reduce(0, +)).debugDescription)
+                }.foregroundColor(.primary)
+                    .popover(isPresented: $writingDieString) {
+                        self.writingDieStringView
+                }
                 Spacer()
                 Button(action: {
                     self.roll()
                 }) {
                     Text("Roll!")
+                }.popover(isPresented: $presentingRoll) {
+                        self.rollPresentationView
                 }
                 Button(action: {
                     self.dice = []
@@ -111,9 +125,17 @@ struct ContentView: View {
                     Text("Clear").foregroundColor(.red)
                 }
             }.padding()
-                .popover(isPresented: $presentingRoll) {
-                    self.rollPresentationView
-            }
+        }
+    }
+
+    private var diceStringError: (exists: Bool, error: String?) {
+        do {
+            let _ = try Dice(self.dieString)
+            return (false, nil)
+        } catch let e as DiceKit.Error {
+            return (true, e.localizedDescription)
+        } catch {
+            return (true, error.localizedDescription)
         }
     }
 
@@ -219,6 +241,44 @@ struct ContentView: View {
             }.padding()
         }
     }
+    private var writingDieStringView: some View {
+        ZStack {
+            Color.primary.colorInvert().onTapGesture {
+                UIApplication.shared.endEditing()
+            }
+            VStack {
+                HStack {
+                    Button(action: {
+                        self.writingDieString = false
+                    }) {
+                        Text("Close").foregroundColor(.red)
+                    }
+                    Spacer()
+                    Button(action: {
+                        let dice = try! Dice(self.dieString)
+                        self.dice = []
+                        for (die, count) in dice.dice {
+                            for _ in 0..<count {
+                                self.dice.append(die)
+                            }
+                        }
+                        self.modifiers = dice.modifier == 0 ? [] : [dice.modifier]
+                        self.writingDieString = false
+                    }) {
+                        Text("Add!")
+                    }.disabled((try? Dice(self.dieString)) == nil)
+                }.padding()
+                Spacer()
+                TextField("3d8 + 5", text: self.$dieString)
+                    .padding()
+                if self.diceStringError.exists {
+                    Text(self.diceStringError.error!).foregroundColor(.red).animation(.default)
+                }
+                Spacer()
+            }
+        }
+
+    }
 
     func add(_ sides: Int) -> Void {
         let die: Die
@@ -243,6 +303,7 @@ struct ContentView: View {
         presentingRoll = true
         self.addingCustomDie = false
         self.addingModifier = false
+        self.writingDieString = false
     }
 }
 
@@ -300,6 +361,16 @@ class DieScene: SKScene {
                 diceNodes.remove(at: idx)
             }
         }
+        for i in 0..<diceNodes.count {
+            if dice.wrappedValue[i] == diceNodes[i].0 { continue }
+            let pos = diceNodes[i].1.position
+            diceNodes[i].1.removeFromParent()
+            diceNodes[i].1.removeAllChildren()
+            let n = dieNode(for: dice.wrappedValue[i].sides)
+            addChild(n)
+            n.position = pos
+            diceNodes[i] = (dice.wrappedValue[i], n)
+        }
 
         if modifiers.wrappedValue.count > modifierNodes.count {
             add(modifier: modifiers.wrappedValue.last!)
@@ -316,6 +387,15 @@ class DieScene: SKScene {
                 modifierNodes[idx].1.removeAllChildren()
                 modifierNodes.remove(at: idx)
             }
+        }
+        for i in 0..<modifierNodes.count {
+            if modifiers.wrappedValue[i] == modifierNodes[i].0 { continue }
+            let pos = modifierNodes[i].1.position
+            modifierNodes[i].1.removeFromParent()
+            modifierNodes[i].1.removeAllChildren()
+            let n = modifierNode(for: modifiers.wrappedValue[i])
+            addChild(n)
+            modifierNodes[i] = (modifiers.wrappedValue[i], n)
         }
 
         for (i, (_, node)) in diceNodes.enumerated() {
@@ -364,42 +444,50 @@ class DieScene: SKScene {
         20: (nGon(sides: 3, sideLength: 70), 3/2)
     ]
 
-    func add(die: Die) {
-        if let config = points[die.sides] {
+    private func dieNode(for sides: Int) -> SKShapeNode {
+        let n: SKShapeNode
+        if let config = points[sides] {
             var points = config.points
-            let n = SKShapeNode(points: &points, count: points.count)
+            n = SKShapeNode(points: &points, count: points.count)
             n.position = .zero
             n.name = "draggable"
-            let label = SKLabelNode(text: "\(die.sides)")
+            let label = SKLabelNode(text: "\(sides)")
             label.setScale(0.8)
             label.position = .init(x: 0, y: -label.frame.height/2 * config.labelOffsetMultiplier)
             label.fontName = "HelveticaNeue-Bold"
 
             n.addChild(label)
-            addChild(n)
-            diceNodes.append((die, n))
         } else {
-            let n = SKShapeNode(circleOfRadius: 32.5)
+            n = SKShapeNode(circleOfRadius: 32.5)
             n.position = .zero
             n.name = "draggable"
-            let label = SKLabelNode(text: "\(die.sides)")
+            let label = SKLabelNode(text: "\(sides)")
             label.setScale(0.8)
             label.position = .init(x: 0, y: -label.frame.height/2)
             label.fontName = "HelveticaNeue-Bold"
 
             n.addChild(label)
-            addChild(n)
-            diceNodes.append((die, n))
         }
+        return n
     }
 
-    func add(modifier: Int) {
+    func add(die: Die) {
+        let n = dieNode(for: die.sides)
+        addChild(n)
+        diceNodes.append((die, n))
+    }
+
+    private func modifierNode(for modifier: Int) -> SKLabelNode {
         let n = SKLabelNode(text: "\(modifier)")
         n.position = .zero
         n.name = "draggable"
         n.fontName = "HelveticaNeue-Bold"
         n.setScale(1.2)
+        return n
+    }
 
+    func add(modifier: Int) {
+        let n = modifierNode(for: modifier)
         addChild(n)
         modifierNodes.append((modifier, n))
     }
