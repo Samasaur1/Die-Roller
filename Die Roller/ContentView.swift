@@ -398,6 +398,7 @@ class DieScene: SKScene {
             modifierNodes[i].1.removeAllChildren()
             let n = modifierNode(for: modifiers.wrappedValue[i])
             addChild(n)
+            n.position = pos
             modifierNodes[i] = (modifiers.wrappedValue[i], n)
         }
 
