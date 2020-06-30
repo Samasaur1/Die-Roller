@@ -335,38 +335,48 @@ class DieScene: SKScene {
         selected = nil
     }
 
-    private lazy var points: [Int: [CGPoint]] = [
-        4: nGon(sides: 3, sideLength: 79.45),
-        6: nGon(sides: 4, sideLength: 59.25),
-        8: nGon(sides: 3, sideLength: 69.45),
-        10: [
-            .init(x: 0, y: -67.25/2),
-            .init(x: -51.00/2, y: -67.25/2 + 9.05),
-            .init(x: 0, y: 67.25/2),
-            .init(x: 51.00/2, y: -67.25/2 + 9.05),
-            .init(x: 0, y: -67.25/2)
-        ],
-        12: nGon(sides: 5, sideLength: 31.70),
-        20: nGon(sides: 3, sideLength: 44.65)
+    private lazy var points: [Int: (points: [CGPoint], labelOffsetMultiplier: CGFloat)] = [
+        4: (nGon(sides: 3, sideLength: 70), 3/2),
+        6: (nGon(sides: 4, sideLength: 59.25), 1),
+        8: (nGon(sides: 3, sideLength: 70), 3/2),
+        10: ([
+            .init(x: 0, y: -36),
+            .init(x: -30, y: -36 + 15),
+            .init(x: 0, y: 36),
+            .init(x: 30, y: -36 + 15),
+            .init(x: 0, y: -36)
+        ], 3/2),
+        12: (nGon(sides: 5, sideLength: 45), 6/5),
+        20: (nGon(sides: 3, sideLength: 70), 3/2)
     ]
 
     func add(die: Die) {
-        let n: SKShapeNode
-        if var points = points[die.sides] {
-            n = SKShapeNode(points: &points, count: points.count)
-        } else {
-            n = SKShapeNode(circleOfRadius: 30)
-        }
-        n.position = .zero
-        n.name = "draggable"
-        let label = SKLabelNode(text: "\(die.sides)")
-        label.position = .init(x: 0, y: -label.frame.height/2)
-        label.setScale(n.frame.width/88)
-        label.fontName = "HelveticaNeue-Bold"
+        if let config = points[die.sides] {
+            var points = config.points
+            let n = SKShapeNode(points: &points, count: points.count)
+            n.position = .zero
+            n.name = "draggable"
+            let label = SKLabelNode(text: "\(die.sides)")
+            label.setScale(0.8)
+            label.position = .init(x: 0, y: -label.frame.height/2 * config.labelOffsetMultiplier)
+            label.fontName = "HelveticaNeue-Bold"
 
-        n.addChild(label)
-        addChild(n)
-        diceNodes.append((die, n))
+            n.addChild(label)
+            addChild(n)
+            diceNodes.append((die, n))
+        } else {
+            let n = SKShapeNode(circleOfRadius: 32.5)
+            n.position = .zero
+            n.name = "draggable"
+            let label = SKLabelNode(text: "\(die.sides)")
+            label.setScale(0.8)
+            label.position = .init(x: 0, y: -label.frame.height/2)
+            label.fontName = "HelveticaNeue-Bold"
+
+            n.addChild(label)
+            addChild(n)
+            diceNodes.append((die, n))
+        }
     }
 
     func add(modifier: Int) {
@@ -374,6 +384,7 @@ class DieScene: SKScene {
         n.position = .zero
         n.name = "draggable"
         n.fontName = "HelveticaNeue-Bold"
+        n.setScale(1.2)
 
         addChild(n)
         modifierNodes.append((modifier, n))
