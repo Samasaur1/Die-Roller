@@ -8,16 +8,14 @@
 
 import Foundation
 import SwiftUI
-@testable import DiceKit
-#warning("I really shouldn't be doing a testable import, but I need to access `Chances.dict`")
+import DiceKit
 
 struct GraphView: View {
     let dice: Dice
     let currentRoll: Roll
 
     var arr: [(Roll, Chance)] {
-        if dice.dice.isEmpty { return [(dice.modifier, Chance.one)] } // circumvents https://github.com/Samasaur1/DiceKit/issues/75
-        return dice.probabilities.dict.sorted(by: { first, second in
+        return dice.probabilities.chances.sorted(by: { first, second in
             first.key < second.key
         })
     }
