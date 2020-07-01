@@ -226,9 +226,6 @@ struct ContentView: View {
                     Text("Close").foregroundColor(.red)
                 }
                 Spacer()
-                Text("Result: ").bold()
-                Text("\(self.rollResult)")
-                Spacer()
                 HStack {
                     Text("Dice Rolled: ").bold()
                     Text(Dice(dice: self.dice, withModifier: self.modifiers.reduce(0, +)).debugDescription)
@@ -242,7 +239,7 @@ struct ContentView: View {
             }.padding()
             Divider()
             TabView {
-                GraphView(dice: Dice(dice: self.dice, withModifier: self.modifiers.reduce(0, +))).tabItem {
+                GraphView(dice: Dice(dice: self.dice, withModifier: self.modifiers.reduce(0, +)), currentRoll: self.rollResult).tabItem {
                     Image(systemName: "chart.bar")
                     Text("Probabilities")
                 }.tag(1)
