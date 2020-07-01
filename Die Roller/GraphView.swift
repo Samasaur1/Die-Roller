@@ -52,7 +52,7 @@ struct GraphView: View {
         return HStack(alignment: .bottom, spacing: 0) {
             ForEach(self.arr, id: \.0) { (roll, chance) in
                 VStack {
-                    Text("\(chance.n * denom / chance.d)")
+                    Text("\(chance.n * denom / chance.d)").foregroundColor(Color.secondary)
                     Rectangle().fill(roll == self.currentRoll ? Color.green : Color.red, stroke: Color.primary).frame(width: 30, height: self.height(chance: chance, geo: geo, greatest: greatest.1), alignment: .center)
                     if roll == self.currentRoll {
                         Text("\(roll)").bold()

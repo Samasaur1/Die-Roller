@@ -28,6 +28,9 @@ struct ContentView: View {
     }
     @State var writingDieString = false
     @State var dieString = ""
+    var diceObj: Dice {
+        Dice(dice: self.dice, withModifier: self.modifiers.reduce(0, +))
+    }
     var body: some View {
         VStack(spacing: 0) {
             GeometryReader { (geo: GeometryProxy) in
@@ -105,7 +108,7 @@ struct ContentView: View {
                     self.addingModifier = false
                     self.presentingRoll = false
                 }) {
-                    Text(Dice(dice: dice, withModifier: modifiers.reduce(0, +)).debugDescription)
+                    Text(diceObj.debugDescription)
                 }.foregroundColor(.primary)
                     .popover(isPresented: $writingDieString) {
                         self.writingDieStringView
@@ -140,16 +143,16 @@ struct ContentView: View {
     }
 
     private var sidebarDragGesture: some Gesture {
-        DragGesture()
+        let minWidth: CGFloat = 75
+        return DragGesture()
             .onChanged { val in
                 withAnimation {
-                    if val.translation.width > 100 {
+                    if val.translation.width > minWidth {
                         self.sidebar = true
-                    } else if val.translation.width < -100 {
+                    } else if val.translation.width < -minWidth {
                         self.sidebar = false
                     }
                 }
-                print(val)
         }
     }
 
@@ -242,7 +245,7 @@ struct ContentView: View {
                 Spacer()
                 HStack {
                     Text("Dice Rolled: ").bold()
-                    Text(Dice(dice: self.dice, withModifier: self.modifiers.reduce(0, +)).debugDescription)
+                    Text(diceObj.debugDescription)
                 }
                 Spacer()
                 Button(action: {
@@ -253,14 +256,14 @@ struct ContentView: View {
             }.padding()
             Divider()
             TabView {
-                GraphView(dice: Dice(dice: self.dice, withModifier: self.modifiers.reduce(0, +)), currentRoll: self.rollResult).tabItem {
+                GraphView(dice: diceObj, currentRoll: self.rollResult).tabItem {
                     Image(systemName: "chart.bar")
                     Text("Probabilities")
                 }.tag(1)
-                Text("").tabItem {
-                    Image(systemName: "slider.horizontal.3")
-                    Text("Chances")
-                }.tag(2)
+//                ChancesView(dice: diceObj, currentRoll: self.rollResult).tabItem {
+//                    Image(systemName: "slider.horizontal.3")
+//                    Text("Chances")
+//                }.tag(2)
             }
         }
     }
