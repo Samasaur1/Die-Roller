@@ -85,7 +85,7 @@ struct ContentView: View {
                                     .padding(.trailing, 7.5)
                                     .padding(.leading, self.sidebar ? 5 : 2)
                                     .background(Color.gray)
-                            }
+                            }.highPriorityGesture(self.sidebarDragGesture)
                             Spacer()
                         }
                         if self.addingCustomDie {
@@ -136,6 +136,20 @@ struct ContentView: View {
             return (true, e.localizedDescription)
         } catch {
             return (true, error.localizedDescription)
+        }
+    }
+
+    private var sidebarDragGesture: some Gesture {
+        DragGesture()
+            .onChanged { val in
+                withAnimation {
+                    if val.translation.width > 100 {
+                        self.sidebar = true
+                    } else if val.translation.width < -100 {
+                        self.sidebar = false
+                    }
+                }
+                print(val)
         }
     }
 
