@@ -15,6 +15,8 @@
 		221DFBA424AA83A200E1AA80 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 221DFBA224AA83A200E1AA80 /* LaunchScreen.storyboard */; };
 		221DFBAD24AA8F4C00E1AA80 /* DiceKit in Frameworks */ = {isa = PBXBuildFile; productRef = 221DFBAC24AA8F4C00E1AA80 /* DiceKit */; };
 		223DEBAD24ABDC9200CF895E /* GraphView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223DEBAC24ABDC9200CF895E /* GraphView.swift */; };
+		223DEBAF24AC365B00CF895E /* ChancesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 223DEBAE24AC365B00CF895E /* ChancesView.swift */; };
+		22FB422B24AD5504005514D6 /* PieChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22FB422A24AD5504005514D6 /* PieChartView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -27,6 +29,8 @@
 		221DFBA324AA83A200E1AA80 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		221DFBA524AA83A200E1AA80 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		223DEBAC24ABDC9200CF895E /* GraphView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphView.swift; sourceTree = "<group>"; };
+		223DEBAE24AC365B00CF895E /* ChancesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChancesView.swift; sourceTree = "<group>"; };
+		22FB422A24AD5504005514D6 /* PieChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PieChartView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +72,8 @@
 				221DFBA524AA83A200E1AA80 /* Info.plist */,
 				221DFB9F24AA83A200E1AA80 /* Preview Content */,
 				223DEBAC24ABDC9200CF895E /* GraphView.swift */,
+				223DEBAE24AC365B00CF895E /* ChancesView.swift */,
+				22FB422A24AD5504005514D6 /* PieChartView.swift */,
 			);
 			path = "Die Roller";
 			sourceTree = "<group>";
@@ -157,7 +163,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				22FB422B24AD5504005514D6 /* PieChartView.swift in Sources */,
 				221DFB9824AA83A100E1AA80 /* AppDelegate.swift in Sources */,
+				223DEBAF24AC365B00CF895E /* ChancesView.swift in Sources */,
 				221DFB9A24AA83A100E1AA80 /* SceneDelegate.swift in Sources */,
 				221DFB9C24AA83A100E1AA80 /* ContentView.swift in Sources */,
 				223DEBAD24ABDC9200CF895E /* GraphView.swift in Sources */,

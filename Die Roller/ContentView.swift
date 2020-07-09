@@ -312,10 +312,14 @@ struct ContentView: View {
                     Image(systemName: "chart.bar")
                     Text("Probabilities")
                 }.tag(1)
+                PieChartView(dice: diceObj, currentRoll: self.rollResult).tabItem {
+                    Image(systemName: "chart.pie.fill")
+                    Text("Probabilities")
+                }.tag(2)
 //                ChancesView(dice: diceObj, currentRoll: self.rollResult).tabItem {
 //                    Image(systemName: "slider.horizontal.3")
 //                    Text("Chances")
-//                }.tag(2)
+//                }.tag(3)
             }
         }
     }
