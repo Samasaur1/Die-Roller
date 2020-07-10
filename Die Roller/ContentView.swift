@@ -140,7 +140,7 @@ struct ContentView: View {
     }
 
     @State private var drag: Drag = Drag()
-    private let dragDiePublisher = PassthroughSubject<(Die, CGPoint), Never>()
+    private let dragDiePublisher = PassthroughSubject<(Die, CGPoint?), Never>()
 
     internal struct Drag {
         internal init(ing: Bool, location: CGPoint, sides: Int) {
@@ -369,6 +369,7 @@ struct ContentView: View {
 
         self.dice.append(die)
         self.customDieSidesStr = "1"
+        self.dragDiePublisher.send((die, nil))
     }
 
     func roll() {
@@ -384,7 +385,7 @@ struct SceneView: UIViewRepresentable {
     let scene: DieScene
     private let pub: AnyCancellable
 
-    init(scene: DieScene, width: CGFloat, height: CGFloat, dice: Binding<[Die]>, modifiers: Binding<[Int]>, dragDiePublisher: PassthroughSubject<(Die, CGPoint), Never>) {
+    init(scene: DieScene, width: CGFloat, height: CGFloat, dice: Binding<[Die]>, modifiers: Binding<[Int]>, dragDiePublisher: PassthroughSubject<(Die, CGPoint?), Never>) {
         self.scene = scene
         scene.size = .init(width: width, height: height)
         scene.anchorPoint = .init(x: 0.5, y: 0.5)
@@ -395,6 +396,7 @@ struct SceneView: UIViewRepresentable {
             print("sinking publisher")
             scene.add(die, at: point)
         }
+        print("regenerating SceneView")
     }
 
     func makeUIView(context: Context) -> SKView {
@@ -412,7 +414,12 @@ struct SceneView: UIViewRepresentable {
 class DieScene: SKScene {
     var dice: Binding<[Die]>! = nil
     var modifiers: Binding<[Int]>! = nil
-    private var diceNodes: [(Die, SKShapeNode)] = []
+    private var diceNodes: [(Die, SKShapeNode)] = [] {
+        willSet {
+            print(diceNodes)
+            print(newValue)
+        }
+    }
     private var modifierNodes: [(Int, SKLabelNode)] = []
 
     private var selected: SKNode? = nil
@@ -423,77 +430,77 @@ class DieScene: SKScene {
     }
 
     override func update(_ currentTime: TimeInterval) {
-        if dice.wrappedValue.count > diceNodes.count {
-            add(die: dice.wrappedValue.last!)
-        } else if dice.wrappedValue.count < diceNodes.count {
-            if dice.wrappedValue.isEmpty {
-                diceNodes.forEach { (_, node) in
-                    node.removeFromParent()
-                    node.removeAllChildren()
-                }
-                diceNodes = []
-            }
-            if let idx = Array(zip(dice.wrappedValue, diceNodes)).firstIndex(where: { $0.0 != $0.1.0 }) {
-                diceNodes[idx].1.removeFromParent()
-                diceNodes[idx].1.removeAllChildren()
-                diceNodes.remove(at: idx)
-            }
-        }
-        for i in 0..<diceNodes.count {
-            if dice.wrappedValue[i] == diceNodes[i].0 { continue }
-            let pos = diceNodes[i].1.position
-            diceNodes[i].1.removeFromParent()
-            diceNodes[i].1.removeAllChildren()
-            let n = dieNode(for: dice.wrappedValue[i].sides)
-            addChild(n)
-            n.position = pos
-            diceNodes[i] = (dice.wrappedValue[i], n)
-        }
-
-        if modifiers.wrappedValue.count > modifierNodes.count {
-            add(modifier: modifiers.wrappedValue.last!)
-        } else if modifiers.wrappedValue.count < modifierNodes.count {
-            if modifiers.wrappedValue.isEmpty {
-                modifierNodes.forEach { (_, node) in
-                    node.removeFromParent()
-                    node.removeAllChildren()
-                }
-                modifierNodes = []
-            }
-            if let idx = Array(zip(modifiers.wrappedValue, modifierNodes)).firstIndex(where: { $0.0 != $0.1.0 }) {
-                modifierNodes[idx].1.removeFromParent()
-                modifierNodes[idx].1.removeAllChildren()
-                modifierNodes.remove(at: idx)
-            }
-        }
-        for i in 0..<modifierNodes.count {
-            if modifiers.wrappedValue[i] == modifierNodes[i].0 { continue }
-            let pos = modifierNodes[i].1.position
-            modifierNodes[i].1.removeFromParent()
-            modifierNodes[i].1.removeAllChildren()
-            let n = modifierNode(for: modifiers.wrappedValue[i])
-            addChild(n)
-            n.position = pos
-            modifierNodes[i] = (modifiers.wrappedValue[i], n)
-        }
-
-        for (i, (_, node)) in diceNodes.enumerated() {
-            if (-self.frame.height / 2) > (node.position.y + node.frame.height/2) {
-                if node == selected { continue }
-                node.removeFromParent()
-                dice.wrappedValue.remove(at: i)
-                diceNodes.remove(at: i)
-            }
-        }
-
-        for (i, (_, node)) in modifierNodes.enumerated() {
-            if (-self.frame.height / 2) > (node.position.y + node.frame.height/2) {
-                if node == selected { continue }
-                node.removeFromParent()
-                modifiers.wrappedValue.remove(at: i)
-                modifierNodes.remove(at: i)
-            }
-        }
+//        if dice.wrappedValue.count > diceNodes.count {
+//            add(die: dice.wrappedValue.last!)
+//        } else if dice.wrappedValue.count < diceNodes.count {
+//            if dice.wrappedValue.isEmpty {
+//                diceNodes.forEach { (_, node) in
+//                    node.removeFromParent()
+//                    node.removeAllChildren()
+//                }
+//                diceNodes = []
+//            }
+//            if let idx = Array(zip(dice.wrappedValue, diceNodes)).firstIndex(where: { $0.0 != $0.1.0 }) {
+//                diceNodes[idx].1.removeFromParent()
+//                diceNodes[idx].1.removeAllChildren()
+//                diceNodes.remove(at: idx)
+//            }
+//        }
+//        for i in 0..<diceNodes.count {
+//            if dice.wrappedValue[i] == diceNodes[i].0 { continue }
+//            let pos = diceNodes[i].1.position
+//            diceNodes[i].1.removeFromParent()
+//            diceNodes[i].1.removeAllChildren()
+//            let n = dieNode(for: dice.wrappedValue[i].sides)
+//            addChild(n)
+//            n.position = pos
+//            diceNodes[i] = (dice.wrappedValue[i], n)
+//        }
+//
+//        if modifiers.wrappedValue.count > modifierNodes.count {
+//            add(modifier: modifiers.wrappedValue.last!)
+//        } else if modifiers.wrappedValue.count < modifierNodes.count {
+//            if modifiers.wrappedValue.isEmpty {
+//                modifierNodes.forEach { (_, node) in
+//                    node.removeFromParent()
+//                    node.removeAllChildren()
+//                }
+//                modifierNodes = []
+//            }
+//            if let idx = Array(zip(modifiers.wrappedValue, modifierNodes)).firstIndex(where: { $0.0 != $0.1.0 }) {
+//                modifierNodes[idx].1.removeFromParent()
+//                modifierNodes[idx].1.removeAllChildren()
+//                modifierNodes.remove(at: idx)
+//            }
+//        }
+//        for i in 0..<modifierNodes.count {
+//            if modifiers.wrappedValue[i] == modifierNodes[i].0 { continue }
+//            let pos = modifierNodes[i].1.position
+//            modifierNodes[i].1.removeFromParent()
+//            modifierNodes[i].1.removeAllChildren()
+//            let n = modifierNode(for: modifiers.wrappedValue[i])
+//            addChild(n)
+//            n.position = pos
+//            modifierNodes[i] = (modifiers.wrappedValue[i], n)
+//        }
+//
+//        for (i, (_, node)) in diceNodes.enumerated() {
+//            if (-self.frame.height / 2) > (node.position.y + node.frame.height/2) {
+//                if node == selected { continue }
+//                node.removeFromParent()
+//                dice.wrappedValue.remove(at: i)
+//                diceNodes.remove(at: i)
+//            }
+//        }
+//
+//        for (i, (_, node)) in modifierNodes.enumerated() {
+//            if (-self.frame.height / 2) > (node.position.y + node.frame.height/2) {
+//                if node == selected { continue }
+//                node.removeFromParent()
+//                modifiers.wrappedValue.remove(at: i)
+//                modifierNodes.remove(at: i)
+//            }
+//        }
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -571,15 +578,22 @@ class DieScene: SKScene {
         modifierNodes.append((modifier, n))
     }
 
-    func add(_ die: Die, at point: CGPoint) {
-//        let n = dieNode(for: die.sides)
-//        addChild(n)
-//        n.position = point
-//        diceNodes.append((die, n))
-//        print("adding \(die) at \(point)")
-        dump(diceNodes)
-        diceNodes.last(where: { d, n in d == die })?.1.position = point
-        print("trying to move")
+    func add(_ die: Die, at point: CGPoint?) {
+////        let n = dieNode(for: die.sides)
+////        addChild(n)
+////        n.position = point
+////        diceNodes.append((die, n))
+////        print("adding \(die) at \(point)")
+//        dump(diceNodes)
+//        diceNodes.last(where: { d, n in d == die })?.1.position = point
+//        print("trying to move")
+        let n = dieNode(for: die.sides)
+        n.position = point ?? .zero
+        addChild(n)
+        diceNodes.append((die, n))
+        print("adding \(die) at \(point)")
+        print(dice.wrappedValue)
+        print(diceNodes.map { $0.0 })
     }
 }
 
