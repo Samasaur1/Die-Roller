@@ -9,6 +9,7 @@
 import SwiftUI
 import DiceKit
 import SpriteKit
+import Combine
 
 struct ContentView: View {
     @State var sidebar = false
@@ -32,102 +33,130 @@ struct ContentView: View {
         Dice(dice: self.dice, withModifier: self.modifiers.reduce(0, +))
     }
     var body: some View {
-        VStack(spacing: 0) {
-            GeometryReader { (geo: GeometryProxy) in
-                HStack(spacing: 0) {
-                    if self.sidebar {
-                        VStack {
-                            List {
-                                ForEach([4, 6, 8, 10, 12, 20, 100], id: \.self) { sides in
+        ZStack {
+            VStack(spacing: 0) {
+                GeometryReader { (geo: GeometryProxy) in
+                    HStack(spacing: 0) {
+                        if self.sidebar {
+                            VStack {
+                                List {
+                                    ForEach([4, 6, 8, 10, 12, 20, 100], id: \.self) { sides in
+                                        HStack {
+                                            Text("d\(sides)")
+                                            Spacer()
+                                            Button(action: {
+                                                self.add(sides)
+                                                self.addingCustomDie = false
+                                                self.addingModifier = false
+                                            }) {
+                                                Image(systemName: "plus")
+                                            }
+                                        }.gesture(self.dragDieGesture(sides: sides))
+                                    }
                                     HStack {
-                                        Text("d\(sides)")
+                                        Text("Custom Die")
                                         Spacer()
                                         Button(action: {
-                                            self.add(sides)
-                                            self.addingCustomDie = false
+                                            self.addingCustomDie = true
                                             self.addingModifier = false
                                         }) {
                                             Image(systemName: "plus")
                                         }
                                     }
-                                }
-                                HStack {
-                                    Text("Custom Die")
-                                    Spacer()
-                                    Button(action: {
-                                        self.addingCustomDie = true
-                                        self.addingModifier = false
-                                    }) {
-                                        Image(systemName: "plus")
+                                    HStack {
+                                        Text("Modifier")
+                                        Spacer()
+                                        Button(action: {
+                                            self.addingModifier = true
+                                            self.addingCustomDie = false
+                                        }) {
+                                            Image(systemName: "plus")
+                                        }
                                     }
                                 }
-                                HStack {
-                                    Text("Modifier")
-                                    Spacer()
-                                    Button(action: {
-                                        self.addingModifier = true
-                                        self.addingCustomDie = false
-                                    }) {
-                                        Image(systemName: "plus")
+                            }.frame(width: geo.size.width / 4, height: nil, alignment: .leading).transition(.asymmetric(insertion: .slide, removal: .move(edge: .leading)))
+                        }
+                        Divider()
+                        ZStack {
+                            SceneView(scene: DieScene(), width: geo.size.width, height: geo.size.height, dice: self.$dice, modifiers: self.$modifiers, dragDiePublisher: self.dragDiePublisher)
+                            HStack {
+                                Button(action: {
+                                    withAnimation {
+                                        self.sidebar.toggle()
                                     }
-                                }
+                                }) {
+                                    Image(systemName: "chevron.\(self.sidebar ? "left" : "right")")
+                                        .padding(.vertical, nil)
+                                        .padding(.trailing, 7.5)
+                                        .padding(.leading, self.sidebar ? 5 : 2)
+                                        .background(Color.gray)
+                                }.highPriorityGesture(self.sidebarDragGesture)
+                                Spacer()
                             }
-                        }.frame(width: geo.size.width / 4, height: nil, alignment: .leading).transition(.asymmetric(insertion: .slide, removal: .move(edge: .leading)))
-                    }
-                    Divider()
-                    ZStack {
-                        SceneView(scene: DieScene(), width: geo.size.width, height: geo.size.height, dice: self.$dice, modifiers: self.$modifiers)
-                        HStack {
-                            Button(action: {
-                                withAnimation {
-                                    self.sidebar.toggle()
-                                }
-                            }) {
-                                Image(systemName: "chevron.\(self.sidebar ? "left" : "right")")
-                                    .padding(.vertical, nil)
-                                    .padding(.trailing, 7.5)
-                                    .padding(.leading, self.sidebar ? 5 : 2)
-                                    .background(Color.gray)
-                            }.highPriorityGesture(self.sidebarDragGesture)
-                            Spacer()
-                        }
-                        if self.addingCustomDie {
-                            self.addingCustomDieView
-                        }
-                        if self.addingModifier {
-                            self.addingModifierView
+                            if self.addingCustomDie {
+                                self.addingCustomDieView
+                            }
+                            if self.addingModifier {
+                                self.addingModifierView
+                            }
                         }
                     }
+                }
+                Divider()
+                HStack {
+                    Button(action: {
+                        self.writingDieString = true
+                        self.addingCustomDie = false
+                        self.addingModifier = false
+                        self.presentingRoll = false
+                    }) {
+                        Text(diceObj.debugDescription)
+                    }.foregroundColor(.primary)
+                        .popover(isPresented: $writingDieString) {
+                            self.writingDieStringView
+                    }
+                    Spacer()
+                    Button(action: {
+                        self.roll()
+                    }) {
+                        Text("Roll!")
+                    }.popover(isPresented: $presentingRoll) {
+                            self.rollPresentationView
+                    }
+                    Button(action: {
+                        self.dice = []
+                        self.modifiers = []
+                    }) {
+                        Text("Clear").foregroundColor(.red)
+                    }
+                }.padding()
+            }
+            if drag.ing {
+                GeometryReader { _ in
+                    Circle().fill(Color.green).frame(width: 10, height: 10, alignment: .center).position(self.drag.location)
                 }
             }
-            Divider()
-            HStack {
-                Button(action: {
-                    self.writingDieString = true
-                    self.addingCustomDie = false
-                    self.addingModifier = false
-                    self.presentingRoll = false
-                }) {
-                    Text(diceObj.debugDescription)
-                }.foregroundColor(.primary)
-                    .popover(isPresented: $writingDieString) {
-                        self.writingDieStringView
-                }
-                Spacer()
-                Button(action: {
-                    self.roll()
-                }) {
-                    Text("Roll!")
-                }.popover(isPresented: $presentingRoll) {
-                        self.rollPresentationView
-                }
-                Button(action: {
-                    self.dice = []
-                    self.modifiers = []
-                }) {
-                    Text("Clear").foregroundColor(.red)
-                }
-            }.padding()
+        }
+    }
+
+    @State private var drag: Drag = Drag()
+    private let dragDiePublisher = PassthroughSubject<(Die, CGPoint), Never>()
+
+    internal struct Drag {
+        internal init(ing: Bool, location: CGPoint, sides: Int) {
+            self.ing = ing
+            self.location = location
+            self.sides = sides
+        }
+
+        var ing: Bool
+        var location: CGPoint
+        var sides: Int
+
+        internal init() {
+            self.ing = false
+            self.location = .zero
+            self.sides = 1
         }
     }
 
@@ -140,6 +169,21 @@ struct ContentView: View {
         } catch {
             return (true, error.localizedDescription)
         }
+    }
+
+    func dragDieGesture(sides: Int) -> some Gesture {
+        return DragGesture(coordinateSpace: .global)
+            .onChanged { val in
+                self.drag.ing = true
+                self.drag.location = val.location
+                self.drag.sides = sides
+            }.onEnded { val in
+                self.drag.ing = false
+                print("sending publisher (\(sides), \(val.location))")
+                let d = try! Die(sides: sides)
+                self.dice.append(d)
+                self.dragDiePublisher.send((d, val.location))
+            }
     }
 
     private var sidebarDragGesture: some Gesture {
@@ -338,14 +382,19 @@ struct ContentView: View {
 
 struct SceneView: UIViewRepresentable {
     let scene: DieScene
+    private let pub: AnyCancellable
 
-    init(scene: DieScene, width: CGFloat, height: CGFloat, dice: Binding<[Die]>, modifiers: Binding<[Int]>) {
+    init(scene: DieScene, width: CGFloat, height: CGFloat, dice: Binding<[Die]>, modifiers: Binding<[Int]>, dragDiePublisher: PassthroughSubject<(Die, CGPoint), Never>) {
         self.scene = scene
         scene.size = .init(width: width, height: height)
         scene.anchorPoint = .init(x: 0.5, y: 0.5)
         scene.scaleMode = .fill
         scene.dice = dice
         scene.modifiers = modifiers
+        pub = dragDiePublisher.sink { (die, point) in
+            print("sinking publisher")
+            scene.add(die, at: point)
+        }
     }
 
     func makeUIView(context: Context) -> SKView {
@@ -521,6 +570,17 @@ class DieScene: SKScene {
         addChild(n)
         modifierNodes.append((modifier, n))
     }
+
+    func add(_ die: Die, at point: CGPoint) {
+//        let n = dieNode(for: die.sides)
+//        addChild(n)
+//        n.position = point
+//        diceNodes.append((die, n))
+//        print("adding \(die) at \(point)")
+        dump(diceNodes)
+        diceNodes.last(where: { d, n in d == die })?.1.position = point
+        print("trying to move")
+    }
 }
 
 func nGon(sides n: Int, sideLength l: Double) -> [CGPoint] {
@@ -548,5 +608,15 @@ func nGon(sides n: Int, sideLength l: Double) -> [CGPoint] {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView().previewLayout(.fixed(width: 568, height: 320))
+    }
+}
+
+
+extension CGPoint {
+    static func +(_ lhs: CGPoint, _ rhs: CGPoint) -> CGPoint {
+        CGPoint(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
+    }
+    static func -(_ lhs: CGPoint, _ rhs: CGPoint) -> CGPoint {
+        CGPoint(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
     }
 }
