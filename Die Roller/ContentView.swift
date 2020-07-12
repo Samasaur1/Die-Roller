@@ -184,7 +184,14 @@ struct ContentView: View {
                 self.drag.ing = false
                 print("generating d\(sides) at \(val.location) (global coords)")
                 let d = try! Die(sides: sides)
-                self.diceWithMetadata.append((d, val.location, nil))
+                let w = UIScreen.main.bounds.size.width
+                let loc = CGPoint(x: val.location.x - (w / 4), y: val.location.y)
+                //i thought i'd need to divide by 3w/4, but that didn't work AT ALL
+                print("corressponds to \(loc)")
+                guard loc.x > 0 else {
+                    return
+                }
+                self.diceWithMetadata.append((d, loc, nil))
             }
     }
 
