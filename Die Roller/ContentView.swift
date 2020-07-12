@@ -429,7 +429,7 @@ class DieScene: SKScene {
                 }
             } else {
                 let n = dieNode(for: dice.wrappedValue[i].0.sides)
-                n.position = self.convertPoint(fromView: dice.wrappedValue[i].1 ?? .zero)
+                n.position = self.convertPoint(fromView: dice.wrappedValue[i].1 ?? self.convertPoint(toView: .zero))
                 addChild(n)
                 dice.wrappedValue[i].2 = n
             }
