@@ -492,10 +492,21 @@ class DieScene: SKScene {
                 node.removeFromParent()
                 dice.wrappedValue.remove(at: i)
             }
+            if (node.position.x + node.frame.width/2) < (-self.frame.width / 2) {
+                if node == selected { continue }
+                node.removeFromParent()
+                dice.wrappedValue.remove(at: i)
+            }
         }
 
         for (i, (_, node)) in modifierNodes.enumerated() {
             if (-self.frame.height / 2) > (node.position.y + node.frame.height/2) {
+                if node == selected { continue }
+                node.removeFromParent()
+                modifiers.wrappedValue.remove(at: i)
+                modifierNodes.remove(at: i)
+            }
+            if (node.position.x + node.frame.width/2) < (-self.frame.width / 2) {
                 if node == selected { continue }
                 node.removeFromParent()
                 modifiers.wrappedValue.remove(at: i)
@@ -599,15 +610,5 @@ func nGon(sides n: Int, sideLength l: Double) -> [CGPoint] {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView().previewLayout(.fixed(width: 568, height: 320))
-    }
-}
-
-
-extension CGPoint {
-    static func +(_ lhs: CGPoint, _ rhs: CGPoint) -> CGPoint {
-        CGPoint(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
-    }
-    static func -(_ lhs: CGPoint, _ rhs: CGPoint) -> CGPoint {
-        CGPoint(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
     }
 }
